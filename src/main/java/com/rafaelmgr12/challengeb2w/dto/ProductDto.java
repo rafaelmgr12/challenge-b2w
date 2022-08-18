@@ -4,6 +4,7 @@ import com.rafaelmgr12.challengeb2w.entity.Product;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -44,6 +45,15 @@ public class ProductDto {
     public void setDimension(Map<String, String> dimension) {
         this.dimension = dimension;
     }
+
+    public ProductDto(){}
+    public ProductDto(Product product) {
+        this.name = product.getName();
+        this.code = product.getCode();
+        this.date = product.getDate();
+        this.dimension = product.getDimension();
+    }
+
     @Override
     public boolean equals(Object o){
         if (this == o) return true;
@@ -56,6 +66,9 @@ public class ProductDto {
     @Override
     public int hashCode() {
         return 2042274511;
+    }
+    public static List<ProductDto> convert(List<Product> revenues){
+        return revenues.stream().map(ProductDto::new).collect(java.util.stream.Collectors.toList());
     }
 
 }

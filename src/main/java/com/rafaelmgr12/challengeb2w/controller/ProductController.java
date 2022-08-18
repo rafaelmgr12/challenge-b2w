@@ -1,5 +1,6 @@
 package com.rafaelmgr12.challengeb2w.controller;
 
+import com.rafaelmgr12.challengeb2w.dto.ProductDto;
 import com.rafaelmgr12.challengeb2w.entity.Product;
 import com.rafaelmgr12.challengeb2w.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/challenge-backend")
@@ -21,19 +23,22 @@ public class ProductController {
     private ProductRepository repository;
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts(){
-        List<Product> products = repository.findAll();
-        return ResponseEntity.ok(products);
+    public List<ProductDto> getAllProducts(){
+        List<Product> products = (List<Product>) repository.findAll();
+        return ProductDto.convert(products);
     }
     @GetMapping("/item")
-    public ResponseEntity<List<Product>> getProductByDate(
+    public ResponseEntity<List<ProductDto>> getProductByDate(
             @RequestParam(value = "begindate", required = false) @DateTimeFormat(pattern="dd-MM-yyyy") Date beginDate,
             @RequestParam(value="finaldate", required = false) @DateTimeFormat(pattern="dd-MM-yyyy") Date finalDate
     ){
-        List<Product> products = repository.findProductByDateBetween(
+        Optional<List<Product>> products = repository.findProductByDateBetween(
                 beginDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
                 finalDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        return ResponseEntity.ok().body(products);
+        if (products.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(ProductDto.convert((List<Product>) products.get()));
     }
 
 
